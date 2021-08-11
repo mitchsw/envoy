@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package envoy.extensions.filters.http.grpc_field_extractor.v3;
+
+import "udpa/annotations/status.proto";
+import "validate/validate.proto";
+
+option java_package = "io.envoyproxy.envoy.extensions.filters.http.grpc_field_extractor.v3";
+option java_outer_classname = "ConfigProto";
+option java_multiple_files = true;
+option (udpa.annotations.file_status).package_version_status = ACTIVE;
+
+// [#protodoc-title: gRPC-JSON transcoder]
+// gRPC field extractor :ref:`configuration overview <config_http_filters_grpc_field_extractor>`.
+// [#extension: envoy.filters.http.grpc_field_extractor]
+
+// [#next-free-field: 12]
+// GrpcFieldExtractor filter configuration.
+// TODO: describe
+message GrpcFieldExtractor {
+
+  message FieldExtraction {
+    // The gRPC service and method(s) to apply this field extraction to.
+    // These methods must exist in the proto descriptor.
+    string service = 1;
+    repeated string methods = 2;
+
+    // The path to the field to be extracted. Field path syntax is described in
+    // `FieldMask <https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/field-mask>`.
+    // Since we expect to extract one value, repeated fields are not supported.
+    //
+    // This field path must exist in the request message of ALL the methods specified above.
+    string field_path = 3;
+
+    // The name of the Object which will contain the value within the per-request filterState,
+    // which will be a Envoy::Http::Hashable object.
+    string extraction_name = 4;
+  }
+
+
+  oneof descriptor_set {
+    option (validate.required) = true;
+
+    // Supplies the filename of
+    // :ref:`the proto descriptor set <config_grpc_json_generate_proto_descriptor_set>` for the gRPC
+    // services.
+    string proto_descriptor = 1;
+
+    // Supplies the binary content of
+    // :ref:`the proto descriptor set <config_grpc_json_generate_proto_descriptor_set>` for the gRPC
+    // services.
+    bytes proto_descriptor_bin = 2;
+  }
+
+  // A list of field extractions to attempt on matching gRPC requests
+  repeated FieldExtraction field_extractions = 3;
+}

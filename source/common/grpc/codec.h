@@ -131,5 +131,43 @@ private:
   bool decoding_error_{false};
 };
 
+
+
+// Inspects the given buffer, and extracts gRPC protocol buffer messages - the payload of data frames.
+// Data frames with the compressed flag set are ignored.
+class MessageInspector : public FrameInspector {
+public:
+  // Whenever inspect() returns >0, a new element is added to this vector.
+  std::vector<RawSliceVector> messages();
+protected:
+  bool frameStart(uint8_t) override;  // TODO: check compression
+  void frameDataStart() override;  // TODO: start a new RawSliceVector
+  void frameData(uint8_t*, uint64_t) override;  // TODO: add to RawSliceVector
+  void frameDataEnd() override; // TODO: push RawSliceVector into result set
+
+private:
+  Frame frame_;
+  std::vector<Frame>* output_{nullptr};
+  bool decoding_error_{false};
+};
+
+
+
+
+
+class FrameDataZeroCopyInputStream : public virtual Protobuf::io::ZeroCopyInputStream {
+
+}
+
+// Inspects the complete gRPC  in the input buffer. This does not drain the input
+// buffer, or copy any data. Returns a vector of ZeroCopyInputStreams which point into the
+// input buffer, which also don't drain the input buffer.
+//
+// Data frames with the compressed flag set are ignored. Any trailing partial frames are ignored.
+std::vector<FrameDataZeroCopyInputStream> InspectMessages(const Buffer::Instance& input) {
+
+}
+
+
 } // namespace Grpc
 } // namespace Envoy

@@ -1,3 +1,5 @@
+startup --output_user_root=/tmp/bazel_cache
+
 # Envoy specific Bazel build/test options.
 
 # Bazel doesn't need more than 200MB of memory for local build based on memory profiling:
